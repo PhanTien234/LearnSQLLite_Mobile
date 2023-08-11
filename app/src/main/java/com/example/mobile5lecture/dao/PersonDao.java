@@ -2,6 +2,7 @@ package com.example.mobile5lecture.dao;
 
 // /dao/PersonDao.java
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -16,4 +17,7 @@ public interface PersonDao {
 
     @Query("SELECT * FROM persons ORDER BY name")
     List<Person> getAllPersons();
+
+    @Delete
+    void DeletePerson (Person person);
 }
