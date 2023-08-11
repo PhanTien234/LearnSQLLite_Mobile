@@ -1,6 +1,8 @@
-package com.example.mobile5lecture;
+package com.example.mobile5lecture.activities;
 
+// /activities/MainActivity.java
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.Room;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,12 +11,21 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.mobile5lecture.R;
+import com.example.mobile5lecture.database.AppDatabase;
+import com.example.mobile5lecture.models.Person;
+
 public class MainActivity extends AppCompatActivity {
+    private AppDatabase appDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        appDatabase = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "sqlite_example_db")
+                .allowMainThreadQueries() // For simplicity, don't use this in production
+                .build();
 
         Button saveDetailsButton = findViewById(R.id.saveDetailsButton);
 
@@ -27,10 +38,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveDetails() {
-        // Creates an object of our helper class
-        DatabaseHelper dbHelper = new DatabaseHelper(this);
-
-        // Get references to the EditText views and read their content
         EditText nameTxt = findViewById(R.id.nameText);
         EditText dobTxt = findViewById(R.id.dobText);
         EditText emailTxt = findViewById(R.id.emailText);
@@ -39,17 +46,20 @@ public class MainActivity extends AppCompatActivity {
         String dob = dobTxt.getText().toString();
         String email = emailTxt.getText().toString();
 
-        // Calls the insertDetails method we created
-        long personId = dbHelper.insertDetails(name, dob, email);
+        Person person = new Person();
+        person.name = name;
+        person.dob = dob;
+        person.email = email;
 
-        // Shows a toast with the automatically generated id
+        long personId = appDatabase.personDao().insertPerson(person);
+
         Toast.makeText(this, "Person has been created with id: " + personId,
                 Toast.LENGTH_LONG
         ).show();
 
+
         // Launch Details Activity
         Intent intent = new Intent(this, DetailsActivity.class);
-
         startActivity(intent);
     }
 }
